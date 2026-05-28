@@ -1,0 +1,36 @@
+# LocalStack Community — single container hosting S3, Lambda, DynamoDB, IAM.
+#
+# Tag pinned for reproducibility: every fresh fork & every CI run pulls the
+# EXACT same image. Don't bump this lightly — the LocalStack Lambda runtime
+# changes between minor versions and your tests will drift.
+#
+# The Lambda executor mode is set to `docker` so that LocalStack spins up the
+# real Python 3.11 AWS Lambda runtime image on each invocation. This is what
+# makes the project a credible "I built on AWS" exercise instead of a mock.
+
+services:
+  localstack:
+    container_name: iamdataeng-localstack
+    image: localstack/localstack:3.8.1
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      # Community-only services — listing them speeds up startup and makes the
+      # boundary explicit (no Glue ML, no CloudFront, no Pro features here).
+      - SERVICES=s3,lambda,dynamodb,iam,logs,sts
+      - DEBUG=0
+      - LAMBDA_EXECUTOR=docker
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=30
+      - DISABLE_EVENTS=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - PERSISTENCE=0
+    volumes:
+      # Required for LocalStack to spin up Lambda runtime containers.
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s

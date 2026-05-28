@@ -1,0 +1,94 @@
+name: iamdataeng-evaluate
+
+# Triggered on every push to any branch. The IAmDataEng app listens to the
+# `workflow_run` webhook for this exact workflow name and ingests the verdict
+# into the learner's dashboard. DO NOT rename this workflow.
+#
+# LocalStack note
+# ---------------
+# We DON'T use the `services:` block to launch LocalStack. Reason: LocalStack's
+# Lambda executor spawns sibling Docker containers for each Lambda invocation,
+# which requires mounting /var/run/docker.sock — not possible with a
+# `services:` declaration. Instead we run `docker compose up -d localstack` on
+# the runner directly (the runner host has Docker available).
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    name: Evaluate ingestion.s3-lambda-localstack
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://localhost:4566
+
+    steps:
+      - name: Checkout learner fork
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Terraform 1.9.5
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: Start LocalStack via docker compose
+        # `docker compose` is preinstalled on ubuntu-latest runners. We give
+        # LocalStack up to 60s to come online; pytest's conftest then polls
+        # /_localstack/health and fails fast with a clear FR message if not.
+        run: |
+          docker compose up -d localstack
+          echo "Waiting for LocalStack..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:4566/_localstack/health > /dev/null; then
+              echo "LocalStack is up after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          docker compose ps
+
+      - name: Regenerate fixture if missing
+        # The fixture CSV is committed (seed-deterministic), but a learner who
+        # accidentally deletes it can still pass — we regenerate from seed.
+        run: |
+          if [ ! -f fixtures/deliveries_2026-04-16.csv ]; then
+            echo "Fixture missing — regenerating from seeded script."
+            python -m fixtures.generate_fixtures
+          fi
+
+      - name: Run evaluation rubric
+        run: pytest tests/ -v --tb=short
+
+      - name: Dump LocalStack logs on failure
+        if: failure()
+        run: |
+          echo "::group::LocalStack container logs"
+          docker compose logs localstack | tail -200
+          echo "::endgroup::"
+          echo "::group::Terraform state (if any)"
+          ls -la terraform/ || true
+          echo "::endgroup::"
+
+      - name: Tear down LocalStack
+        if: always()
+        run: docker compose down -v

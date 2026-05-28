@@ -1,0 +1,42 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Terraform — local state must NEVER be committed.
+# CI uses an ephemeral working directory; the learner uses a local backend.
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfplan
+terraform/crash.log
+terraform/crash.*.log
+
+# Lambda build artefacts
+build/
+src/lambda_package.zip
+lambda_package.zip
+
+# LocalStack volume (if mounted locally)
+.localstack/
+volume/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
