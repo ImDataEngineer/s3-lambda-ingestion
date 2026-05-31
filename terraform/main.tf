@@ -73,42 +73,23 @@ resource "aws_iam_role" "lambda_exec" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
-# TODO: rédige une policy explicite (PAS de "*" sur Action ou Resource).
-#       La Lambda a besoin de :
-#         - s3:GetObject sur incoming/* du bucket
-#         - s3:PutObject sur dead-letter/* du bucket
-#         - dynamodb:BatchWriteItem + PutItem sur la table delivery_events
-#         - logs:CreateLogGroup / CreateLogStream / PutLogEvents
-#       Référence les ARNs via les attributs des resources (aws_s3_bucket.deliveries.arn,
-#       aws_dynamodb_table.delivery_events.arn).
+# TODO : rédige une policy scopée pour le rôle d'exécution de la Lambda.
 #
-# data "aws_iam_policy_document" "lambda_inline" {
-#   statement {
-#     sid     = "ReadIncomingObjects"
-#     actions = ["s3:GetObject"]
-#     resources = ["${aws_s3_bucket.deliveries.arn}/incoming/*"]
-#   }
-#   statement {
-#     sid     = "WriteDeadLetterObjects"
-#     actions = ["s3:PutObject"]
-#     resources = ["${aws_s3_bucket.deliveries.arn}/dead-letter/*"]
-#   }
-#   statement {
-#     sid     = "WriteDynamoDB"
-#     actions = ["dynamodb:BatchWriteItem", "dynamodb:PutItem"]
-#     resources = [aws_dynamodb_table.delivery_events.arn]
-#   }
-#   statement {
-#     sid     = "WriteLogs"
-#     actions = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-#     resources = ["arn:aws:logs:*:*:*"]
-#   }
-# }
+# Contraintes (la rubric le vérifie statiquement) :
+#   - PAS de "*" sur Action ni sur Resource (least privilege).
+#   - Aucun wildcard `s3:*` ou `dynamodb:*` ouvert sur tout le compte.
 #
-# resource "aws_iam_role_policy" "lambda_inline" {
-#   role   = aws_iam_role.lambda_exec.id
-#   policy = data.aws_iam_policy_document.lambda_inline.json
-# }
+# La Lambda a besoin de pouvoir, et rien de plus :
+#   - lire les CSV déposés (préfixe `incoming/` du bucket S3)
+#   - écrire les lignes rejetées (préfixe `dead-letter/`)
+#   - faire un BatchWriteItem dans la table DynamoDB
+#   - émettre ses logs CloudWatch
+#
+# À toi de découvrir la syntaxe `data "aws_iam_policy_document"` +
+# `resource "aws_iam_role_policy"`. Les ARN à utiliser sont
+# `aws_s3_bucket.deliveries.arn` et
+# `aws_dynamodb_table.delivery_events.arn`. La doc Terraform pour AWS
+# détaille chaque champ (statement, actions, resources, sid).
 
 # ---------------------------------------------------------------------------
 # 4. Lambda function — zip is built by terraform/build_lambda.sh
