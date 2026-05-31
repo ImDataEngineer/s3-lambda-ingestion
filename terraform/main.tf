@@ -37,17 +37,12 @@ resource "aws_dynamodb_table" "delivery_events" {
   hash_key     = "truck_id"
   range_key    = "delivery_id"
 
-  # TODO: déclare les deux attributs ci-dessous (truck_id en "N", delivery_id en "S").
-  #       Bloc `attribute { name = ..., type = ... }` à répéter.
-
-  # attribute {
-  #   name = "truck_id"
-  #   type = "N"
-  # }
-  # attribute {
-  #   name = "delivery_id"
-  #   type = "S"
-  # }
+  # TODO : déclare les deux attributs utilisés en hash_key et range_key.
+  #        DynamoDB exige un bloc `attribute {}` PAR colonne référencée par
+  #        une clé. Ici on en a deux : truck_id (numérique) et delivery_id
+  #        (string). À toi d'écrire les deux blocs avec la bonne syntaxe
+  #        Terraform et les types AttributeType corrects (consulte la doc
+  #        de `aws_dynamodb_table`).
 }
 
 # ---------------------------------------------------------------------------
@@ -138,16 +133,12 @@ resource "aws_lambda_permission" "allow_s3_invoke" {
 resource "aws_s3_bucket_notification" "incoming_csv" {
   bucket = aws_s3_bucket.deliveries.id
 
-  # TODO: déclenche la Lambda sur s3:ObjectCreated:* avec filter_prefix = "incoming/"
-  #       et filter_suffix = ".csv". Le bloc `lambda_function` ci-dessous est
-  #       à compléter.
-  #
-  # lambda_function {
-  #   lambda_function_arn = aws_lambda_function.sobral_ingest.arn
-  #   events              = ["s3:ObjectCreated:*"]
-  #   filter_prefix       = "incoming/"
-  #   filter_suffix       = ".csv"
-  # }
+  # TODO : déclenche la Lambda quand un fichier `.csv` est déposé sous le
+  #        préfixe `incoming/`. L'évènement S3 attendu est ObjectCreated
+  #        (tous les modes : Put, Post, Copy, etc.). Cherche dans la doc de
+  #        `aws_s3_bucket_notification` le bloc qui relie un bucket à une
+  #        Lambda function avec un filtre de préfixe ET un filtre de
+  #        suffixe. Référence la Lambda via `aws_lambda_function.sobral_ingest.arn`.
 
   depends_on = [aws_lambda_permission.allow_s3_invoke]
 }
