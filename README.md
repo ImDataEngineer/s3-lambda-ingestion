@@ -1,6 +1,12 @@
+> *Also available in [French](./README.fr.md).*
+
+[![Template](https://img.shields.io/badge/repo-template-1e293b?style=flat-square)](https://github.com/ImDataEngineer/s3-lambda-ingestion/generate) [![iamdataeng.com](https://img.shields.io/badge/iamdataeng.com-2563eb?style=flat-square)](https://iamdataeng.com/projects/ingestion.s3-lambda-localstack)
+
+> **Context.** Coursework template from [iamdataeng.com/projects/ingestion.s3-lambda-localstack](https://iamdataeng.com/projects/ingestion.s3-lambda-localstack). Fork, complete the TODO blocks, push, receive a pedagogical CI verdict. Not a maintained open-source project, an evaluated exercise.
+
 # Your first AWS ingestion, all local — `ingestion.s3-lambda-localstack`
 
-> **Level**: junior · **Estimated time**: ~10 h · **Paid IAmDataEng project**
+> **Level**: junior · **Estimated time**: ~10 h · **Paid IamDataEngineer project**
 > **Framework axes**: `ingestion`, `software_engineering_dataops`
 
 You're going to build a real AWS pipeline — S3 triggering a Lambda that
@@ -80,7 +86,7 @@ pytest tests/ -v
 
 Once your 6 tests pass locally, **commit + push** to your fork. GitHub
 Actions CI replays the same rubric — on a clean runner, with a fresh
-LocalStack stack — and the IAmDataEng app displays the verdict in your
+LocalStack stack — and the IamDataEngineer app displays the verdict in your
 dashboard.
 
 ---
@@ -258,6 +264,6 @@ check for more than an hour and a half:
    - `aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name delivery_events`
    - `aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/sobral_ingest`
 3. Open an issue on your fork with the `help-wanted` label — the
-   IAmDataEng community hangs out there.
+   IamDataEngineer community hangs out there.
 
 Good luck.

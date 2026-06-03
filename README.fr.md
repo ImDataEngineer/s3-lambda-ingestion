@@ -1,6 +1,12 @@
+> *Aussi disponible en [anglais](./README.md).*
+
+[![Template](https://img.shields.io/badge/repo-template-1e293b?style=flat-square)](https://github.com/ImDataEngineer/s3-lambda-ingestion/generate) [![iamdataeng.com](https://img.shields.io/badge/iamdataeng.com-2563eb?style=flat-square)](https://iamdataeng.com/projects/ingestion.s3-lambda-localstack)
+
+> **Contexte.** Template pédagogique de [iamdataeng.com/projects/ingestion.s3-lambda-localstack](https://iamdataeng.com/projects/ingestion.s3-lambda-localstack). Fork, complète les TODO, push, reçois un verdict CI pédagogique. Pas un projet open source maintenu, un exercice évalué.
+
 # Ta première ingestion AWS, en local — `ingestion.s3-lambda-localstack`
 
-> **Niveau** : junior · **Durée estimée** : ~10 h · **Projet payant IAmDataEng**
+> **Niveau** : junior · **Durée estimée** : ~10 h · **Projet payant IamDataEngineer**
 > **Axes framework** : `ingestion`, `software_engineering_dataops`
 
 Tu vas construire une vraie pipeline AWS — S3 qui déclenche une Lambda qui
@@ -21,7 +27,7 @@ en fin de tournée un CSV de livraisons sur S3. Le dispatch doit pouvoir, en
 moins de 10 ms, retrouver toutes les livraisons d'un camion donné — c'est
 DynamoDB qu'il leur faut, pas un data warehouse.
 
-Aujourd'hui : un script Python tourne sur un EC2 que le lead doit SSH dedans
+Aujourd'hui : un script Python tourne sur un EC2 dans lequel le lead doit se connecter en SSH
 chaque matin. Le lead veut du **serverless**, et il veut que tu le câbles
 proprement : Terraform, IAM scopé, gestion d'erreurs, idempotence.
 
@@ -81,7 +87,7 @@ pytest tests/ -v
 
 Quand tes 6 tests passent en local, **commit + push** sur ton fork. La CI
 GitHub Actions rejoue la même rubric — sur un runner vierge, avec une stack
-LocalStack neuve — et l'app IAmDataEng affiche le verdict dans ton dashboard.
+LocalStack neuve — et l'app IamDataEngineer affiche le verdict dans ton dashboard.
 
 ---
 
@@ -255,6 +261,6 @@ check précis :
    - `aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name delivery_events`
    - `aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/sobral_ingest`
 3. Ouvre une issue dans ton fork avec le label `help-wanted` — la communauté
-   IAmDataEng y passe.
+   IamDataEngineer y passe.
 
 Bonne route.
